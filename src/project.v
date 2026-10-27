@@ -370,8 +370,8 @@ module tt_um_EV_Charging_CTRL(
     assign text_x = (10'd640 - text_width) / 2;
     assign text_y = 10'd50;
 
-    wire [9:0] rel_x;
-    wire [9:0] rel_y;
+    wire [10:0] rel_x;
+    wire [10:0] rel_y;
 
     wire [3:0] char_index;
     wire [2:0] glyph_col;
