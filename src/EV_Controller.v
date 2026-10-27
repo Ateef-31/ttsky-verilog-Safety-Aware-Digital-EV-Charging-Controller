@@ -11,11 +11,6 @@ module EV_controller #(parameter CLK_FREQUENCY = 50_000_000)(
     input wire over_current,
     input wire over_temperature,
     input wire emergency_stop,
-    output reg charging_enable,
-    output reg charge_in_progress,
-    output reg precharge,
-    output reg fault,
-    output reg charge_done,
     output reg [2:0] state
     );
     localparam IDLE = 3'b000,
@@ -119,40 +114,7 @@ module EV_controller #(parameter CLK_FREQUENCY = 50_000_000)(
               endcase
            end
 
-        always@(*) begin
-            charging_enable = 1'b0;
-            charge_in_progress = 1'b0;
-            precharge = 1'b0;
-            fault = 1'b0;
-            charge_done = 1'b0;
-            state = 3'b000;
-            if(current_state == FAULT) begin
-                fault = 1'b1;
-                charging_enable = 1'b0;
-                state = FAULT;
-                end
-            if(current_state == COMPLETE) begin
-                charge_done = 1'b1;
-                charging_enable = 1'b0;
-                state = COMPLETE;
-                end
-            if(current_state == IDLE || current_state == CONNECTED || current_state == AUTH) begin
-                charging_enable = 1'b0;
-                charge_in_progress = 1'b0;
-                precharge = 1'b0;
-                fault = 1'b0;
-                charge_done = 1'b0;
-                state = current_state;  
-                end
-             if(current_state == PRECHARGE) begin
-                state = PRECHARGE;
-                precharge = 1'b1;
-                charging_enable = 1'b1;
-                end
-             if(current_state == CHARGING) begin
-                charging_enable = 1'b0;
-                charge_in_progress = 1'b1;
-                state = CHARGING;
-             end 
-          end     
+        always @(*)begin
+            state = current_state;
+        end
 endmodule
