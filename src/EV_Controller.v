@@ -11,11 +11,6 @@ module EV_controller #(parameter CLK_FREQUENCY = 50_000_000)(
     input wire over_current,
     input wire over_temperature,
     input wire emergency_stop,
-    output reg charging_enable,
-    output reg charge_in_progress,
-    output reg precharge,
-    output reg fault,
-    output reg charge_done,
     output reg [2:0] state
     );
     localparam IDLE = 3'b000,
@@ -32,127 +27,94 @@ module EV_controller #(parameter CLK_FREQUENCY = 50_000_000)(
     always@(posedge system_clock or negedge system_resetn) begin
         if(!system_resetn) begin
             current_state <= IDLE;
-            end
+        end
         else begin
             current_state <= next_state;
             if(count_en) begin
                 if(counter < CLK_FREQUENCY - 1)
                     counter <= counter + 1;
-                end
+            end
             else
                 counter <= 0;        
-            end
         end
-     always@(*) begin
+    end
+    always@(*) begin
         case(current_state)
             IDLE: begin
                 if(plug_detect) begin
                     next_state = CONNECTED;
-                    end
+                end
                 else begin
                     next_state = IDLE;
-                  end
-              end
+                end
+            end
             CONNECTED: begin
                 if(safety_fault) begin
                     next_state = FAULT;
-                    end
+                end
                 else if(auth) begin
                     next_state = AUTH;
-                    end
+                end
                 else begin
                     next_state = CONNECTED;
-                    end
                 end
+            end
             AUTH: begin
                 if(safety_fault) begin
                     next_state = FAULT;
-                    end
+                end
                 else if(auth) begin
                     next_state = PRECHARGE;
-                    end
+                end
                 else begin
                     next_state = CONNECTED;
-                    end
                 end
+            end
             PRECHARGE: begin
                 if(safety_fault) begin
                     next_state = FAULT;
-                    end
+                end
                 else if(precharge_ready) begin
                     next_state = CHARGING;
-                    end
+                end
                 else begin
                     next_state = PRECHARGE;
-                    end
                 end
+            end
              CHARGING: begin
                 if(emergency_stop || !plug_detect) begin
                     next_state = FAULT;
-                    end
+                end
                 else if(battery_full) begin
                     next_state = COMPLETE;
-                    end
+                end
                 else begin
                     next_state = CHARGING;
-                    end
                 end
+            end
              COMPLETE: begin
                 if(!plug_detect) begin
                     next_state = IDLE;
-                    end
+                end
                 else begin
                     next_state = COMPLETE;
-                    end
                 end
+            end
             FAULT: begin
                 if(counter == (CLK_FREQUENCY - 1) && !plug_detect) begin
                     next_state = IDLE;
-                    end
-                 else begin
+                end
+                else begin
                     next_state = FAULT;
-                    end
-                 end
+                end
+            end
              default: begin
                     next_state = IDLE;
-                    end
-              endcase
-           end
+                end
+            endcase
+        end
 
         always@(*) begin
-            charging_enable = 1'b0;
-            charge_in_progress = 1'b0;
-            precharge = 1'b0;
-            fault = 1'b0;
-            charge_done = 1'b0;
-            state = 3'b000;
-            if(current_state == FAULT) begin
-                fault = 1'b1;
-                charging_enable = 1'b0;
-                state = FAULT;
-                end
-            if(current_state == COMPLETE) begin
-                charge_done = 1'b1;
-                charging_enable = 1'b0;
-                state = COMPLETE;
-                end
-            if(current_state == IDLE || current_state == CONNECTED || current_state == AUTH) begin
-                charging_enable = 1'b0;
-                charge_in_progress = 1'b0;
-                precharge = 1'b0;
-                fault = 1'b0;
-                charge_done = 1'b0;
-                state = current_state;  
-                end
-             if(current_state == PRECHARGE) begin
-                state = PRECHARGE;
-                precharge = 1'b1;
-                charging_enable = 1'b1;
-                end
-             if(current_state == CHARGING) begin
-                charging_enable = 1'b0;
-                charge_in_progress = 1'b1;
-                state = CHARGING;
-             end 
-          end     
+            state = current_state;
+        end     
 endmodule
