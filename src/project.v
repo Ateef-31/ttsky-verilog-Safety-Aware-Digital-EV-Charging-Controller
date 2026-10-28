@@ -11,9 +11,9 @@ module tt_um_EV_Charging_CTRL(
   input  wire       rst_n     // reset_n - low to reset
 );
  
-    // EV Charging Controller Signals
-   // wire plug_detect,battery_full,auth,precharge_ready,over_voltage,over_current,over_temperature,emergency_stop;
-   wire [2:0] state;
+  // EV Charging Controller Signals
+  // wire plug_detect,battery_full,auth,precharge_ready,over_voltage,over_current,over_temperature,emergency_stop;
+  wire [2:0] state;
  
   // VGA signals
   wire hsync;
@@ -48,7 +48,6 @@ module tt_um_EV_Charging_CTRL(
         input [3:0] idx;
         begin
             status_char = " ";
-
             case (status)
 
                 IDLE: begin
@@ -146,10 +145,7 @@ module tt_um_EV_Charging_CTRL(
         end
     endfunction
 
-    // ============================================================
     // 5 x 7 FONT ROM
-    // ============================================================
-
     function [4:0] font_row;
         input [7:0] ch;
         input [2:0] row;
@@ -339,10 +335,7 @@ module tt_um_EV_Charging_CTRL(
         end
     endfunction
 
-    // ============================================================
     // LARGE STATUS HEADING WITH AUTOMATIC CENTERING
-    // ============================================================
-
     localparam [9:0] SCALE  = 10'd6;
     localparam [9:0] CHAR_W = 10'd36;
     localparam [9:0] CHAR_H = 10'd42;
@@ -469,8 +462,5 @@ module tt_um_EV_Charging_CTRL(
     if(state==CHARGING || state == COMPLETE || state == FAULT)
     count <= count +1;
     else count <= 0;
-  end
- 
- 
- 
+  end 
 endmodule
