@@ -417,7 +417,9 @@ module tt_um_EV_Charging_CTRL(
   .state(state)
   );
 
- two_ff_synchronizer two_FF #(.MAX_COUNT(517_500))(
+ two_ff_synchronizer #(
+  .MAX_COUNT(517_500)
+ ) two_FF (
   .clk(clk),
   .rst_n(rst_n),
   .noisy_in(ui_in),
