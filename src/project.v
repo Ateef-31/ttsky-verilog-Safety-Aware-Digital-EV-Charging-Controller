@@ -1,5 +1,4 @@
-`default_nettype none
- 
+
 module tt_um_EV_Charging_CTRL(
   input  wire [7:0] ui_in,    // Dedicated inputs
   output wire [7:0] uo_out,   // Dedicated outputs
@@ -25,7 +24,7 @@ module tt_um_EV_Charging_CTRL(
   wire video_active;
   wire [9:0] pix_x;
   wire [9:0] pix_y;
-
+ 
   localparam IDLE      = 3'd0;
   localparam AUTH      = 3'd2;
   localparam PRECHARGE = 3'd3;
@@ -43,14 +42,14 @@ module tt_um_EV_Charging_CTRL(
  
   // Suppress unused signals warning
   wire _unused_ok = &{ena, uio_in};
-
+ 
   function [7:0] status_char;
         input [2:0] status;
         input [3:0] idx;
         begin
             status_char = " ";
             case (status)
-
+ 
                 IDLE: begin
                     case (idx)
                         0: status_char = "I";
@@ -60,7 +59,7 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
-
+ 
                 AUTH: begin
                     case (idx)
                         0: status_char = "A";
@@ -70,7 +69,7 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
-
+ 
                 PRECHARGE: begin
                     case (idx)
                         0: status_char = "P";
@@ -85,7 +84,7 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
-
+ 
                 CHARGING: begin
                     case (idx)
                         0: status_char = "C";
@@ -99,7 +98,7 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
-
+ 
                 CONNECTED: begin
                     case (idx)
                         0: status_char = "C";
@@ -114,7 +113,7 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
-
+ 
                 COMPLETE: begin
                     case (idx)
                         0: status_char = "C";
@@ -128,7 +127,7 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
-
+ 
                 FAULT: begin
                     case (idx)
                         0: status_char = "F";
@@ -139,22 +138,22 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
-
+ 
                 default: status_char = " ";
-
+ 
             endcase
         end
     endfunction
-
+ 
     // 5 x 7 FONT ROM
     function [4:0] font_row;
         input [7:0] ch;
         input [2:0] row;
         begin
             font_row = 5'b00000;
-
+ 
             case (ch)
-
+ 
                 "A": case (row)
                     0: font_row = 5'b01110;
                     1: font_row = 5'b10001;
@@ -165,7 +164,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10001;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "C": case (row)
                     0: font_row = 5'b01110;
                     1: font_row = 5'b10001;
@@ -176,7 +175,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b01110;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "D": case (row)
                     0: font_row = 5'b11110;
                     1: font_row = 5'b10001;
@@ -187,7 +186,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b11110;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "E": case (row)
                     0: font_row = 5'b11111;
                     1: font_row = 5'b10000;
@@ -198,7 +197,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b11111;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "F": case (row)
                     0: font_row = 5'b11111;
                     1: font_row = 5'b10000;
@@ -209,7 +208,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10000;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "G": case (row)
                     0: font_row = 5'b01110;
                     1: font_row = 5'b10001;
@@ -220,7 +219,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b01110;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "H": case (row)
                     0: font_row = 5'b10001;
                     1: font_row = 5'b10001;
@@ -231,7 +230,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10001;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "I": case (row)
                     0: font_row = 5'b11111;
                     1: font_row = 5'b00100;
@@ -242,7 +241,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b11111;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "L": case (row)
                     0: font_row = 5'b10000;
                     1: font_row = 5'b10000;
@@ -253,7 +252,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b11111;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "M": case (row)
                     0: font_row = 5'b10001;
                     1: font_row = 5'b11011;
@@ -264,7 +263,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10001;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "N": case (row)
                     0: font_row = 5'b10001;
                     1: font_row = 5'b11001;
@@ -275,7 +274,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10001;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "O": case (row)
                     0: font_row = 5'b01110;
                     1: font_row = 5'b10001;
@@ -286,7 +285,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b01110;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "P": case (row)
                     0: font_row = 5'b11110;
                     1: font_row = 5'b10001;
@@ -297,7 +296,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10000;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "R": case (row)
                     0: font_row = 5'b11110;
                     1: font_row = 5'b10001;
@@ -308,7 +307,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10001;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "T": case (row)
                     0: font_row = 5'b11111;
                     1: font_row = 5'b00100;
@@ -319,7 +318,7 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b00100;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 "U": case (row)
                     0: font_row = 5'b10001;
                     1: font_row = 5'b10001;
@@ -330,19 +329,19 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b01110;
                     default: font_row = 5'b00000;
                 endcase
-
+ 
                 default: font_row = 5'b00000;
             endcase
         end
     endfunction
-
+ 
     // LARGE STATUS HEADING WITH AUTOMATIC CENTERING
     localparam [9:0] SCALE  = 10'd6;
     localparam [9:0] CHAR_W = 10'd36;
     localparam [9:0] CHAR_H = 10'd42;
-
+ 
     reg [3:0] status_length;
-
+ 
     always @* begin
         case (state)
             IDLE:      status_length = 4'd4;
@@ -355,47 +354,47 @@ module tt_um_EV_Charging_CTRL(
             default:   status_length = 4'd0;
         endcase
     end
-
+ 
     wire [9:0] text_width;
     wire [9:0] text_x;
     wire [9:0] text_y;
-
+ 
     assign text_width = status_length * CHAR_W;
     assign text_x = (10'd640 - text_width) / 2;
     assign text_y = 10'd50;
-
+ 
     wire [9:0] rel_x;
     wire [9:0] rel_y;
-
+ 
     wire [3:0] char_index;
     wire [2:0] glyph_col;
     wire [2:0] glyph_row;
-
+ 
     wire [7:0] current_char;
     wire [4:0] current_font_row;
     wire text_pixel;
     wire text_area;
-
+ 
     assign text_area =
         (status_length != 0) &&
         (pix_x >= text_x) &&
         (pix_x < text_x + text_width) &&
         (pix_y >= text_y) &&
         (pix_y < text_y + CHAR_H);
-
+ 
     assign rel_x = pix_x - text_x;
     assign rel_y = pix_y - text_y;
-
+ 
     assign char_index = rel_x / CHAR_W;
     assign glyph_col  = (rel_x % CHAR_W) / SCALE;
     assign glyph_row  = rel_y / SCALE;
-
+ 
     assign current_char =
         status_char(state, char_index);
-
+ 
     assign current_font_row =
         font_row(current_char, glyph_row);
-
+ 
     assign text_pixel =
         video_active &&
         text_area &&
@@ -417,6 +416,15 @@ module tt_um_EV_Charging_CTRL(
   .state(state)
   );
 
+ two_ff_synchronizer #(
+  .MAX_COUNT(517_500)
+ ) two_FF (
+  .clk(clk),
+  .rst_n(rst_n),
+  .noisy_in(ui_in),
+  .clean_out(stable_input)
+ );
+ 
  two_ff_synchronizer #(
   .MAX_COUNT(517_500)
  ) two_FF (
@@ -459,10 +467,10 @@ module tt_um_EV_Charging_CTRL(
       else if(state==COMPLETE && pix_y >= 210 && pix_y <= 250 && pix_x >= 30 && pix_x <= 610 && counter%100 <= 50) {R, G, B} <= 6'b00_11_00;
       // White status heading
       if (text_pixel) {R, G, B} <= 6'b11_11_11;
-
+ 
       // Blanking outside visible display
       if (!video_active) {R, G, B} <= 6'b00_00_00;
-
+ 
      
     end
   end
@@ -471,5 +479,5 @@ module tt_um_EV_Charging_CTRL(
     if(state==CHARGING || state == COMPLETE || state == FAULT)
     count <= count +1;
     else count <= 0;
-  end 
+  end
 endmodule

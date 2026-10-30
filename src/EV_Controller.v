@@ -1,4 +1,3 @@
- 
 module EV_controller #(parameter CLK_FREQUENCY = 25_175_000)(
     input wire system_clock,
     input wire system_resetn,
@@ -112,8 +111,8 @@ module EV_controller #(parameter CLK_FREQUENCY = 25_175_000)(
                 end
             endcase
         end
-
+ 
         always@(*) begin
             state = current_state;
-        end     
+        end    
 endmodule
