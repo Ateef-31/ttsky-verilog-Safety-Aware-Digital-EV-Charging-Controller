@@ -14,6 +14,7 @@ module tt_um_EV_Charging_CTRL(
   // EV Charging Controller Signals
   // wire plug_detect,battery_full,auth,precharge_ready,over_voltage,over_current,over_temperature,emergency_stop;
   wire [2:0] state;
+  wire [7:0] stable_input;
  
   // VGA signals
   wire hsync;
@@ -405,17 +406,23 @@ module tt_um_EV_Charging_CTRL(
   EV_controller dut(
   .system_clock(clk),
   .system_resetn(rst_n),
-  .plug_detect(ui_in[0]),
-  .auth(ui_in[1]),
-  .precharge_ready(ui_in[2]),
-  .emergency_stop(ui_in[3]),
-  .battery_full(ui_in[4]),
-  .over_voltage(ui_in[5]),
-  .over_current(ui_in[6]),
-  .over_temperature(ui_in[7]),
- 
+  .plug_detect(stable_input[0]),
+  .auth(stable_input[1]),
+  .precharge_ready(stable_input[2]),
+  .emergency_stop(stable_input[3]),
+  .battery_full(stable_input[4]),
+  .over_voltage(stable_input[5]),
+  .over_current(stable_input[6]),
+  .over_temperature(stable_input[7]),
   .state(state)
   );
+
+ two_ff_synchronizer two_FF #(.MAX_COUNT(517_500))(
+  .clk(clk),
+  .rst_n(rst_n),
+  .noisy_in(ui_in),
+  .clean_out(stable_input)
+ );
  
   hvsync_generator hvsync_gen(
     .clk(clk),
