@@ -1,6 +1,5 @@
-`default_nettype none
  
-module EV_controller #(parameter CLK_FREQUENCY = 50_000_000)(
+module EV_controller #(parameter CLK_FREQUENCY = 25_175_000)(
     input wire system_clock,
     input wire system_resetn,
     input wire plug_detect,
@@ -22,7 +21,7 @@ module EV_controller #(parameter CLK_FREQUENCY = 50_000_000)(
                FAULT= 3'b110;
     reg [2:0] current_state , next_state;
     wire count_en = (current_state == FAULT);
-    reg [$clog2(CLK_FREQUENCY)-1:0] counter;    
+    reg [$clog2(CLK_FREQUENCY*2)-1:0] counter;    
     wire safety_fault = over_voltage || over_current || over_temperature || !plug_detect;
     always@(posedge system_clock or negedge system_resetn) begin
         if(!system_resetn) begin
@@ -31,7 +30,7 @@ module EV_controller #(parameter CLK_FREQUENCY = 50_000_000)(
         else begin
             current_state <= next_state;
             if(count_en) begin
-                if(counter < CLK_FREQUENCY - 1)
+                if(counter < (CLK_FREQUENCY*2) - 1)
                     counter <= counter + 1;
             end
             else
@@ -82,7 +81,7 @@ module EV_controller #(parameter CLK_FREQUENCY = 50_000_000)(
                 end
             end
              CHARGING: begin
-                if(emergency_stop || !plug_detect) begin
+                if(emergency_stop || safety_fault) begin
                     next_state = FAULT;
                 end
                 else if(battery_full) begin
@@ -101,7 +100,7 @@ module EV_controller #(parameter CLK_FREQUENCY = 50_000_000)(
                 end
             end
             FAULT: begin
-                if(counter == (CLK_FREQUENCY - 1) && !plug_detect) begin
+                if(counter == ((CLK_FREQUENCY*2) - 1) && !plug_detect) begin
                     next_state = IDLE;
                 end
                 else begin
