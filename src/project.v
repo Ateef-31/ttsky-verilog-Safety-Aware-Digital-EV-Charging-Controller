@@ -440,7 +440,7 @@ module tt_um_EV_Charging_CTRL(
       counter <= 10'd0;
       {R, G, B} <= 6'b00_00_00;
     end else begin
-      if(count==1&& (state==CHARGING || state == COMPLETE || state == FAULT)) counter <= (counter <= 610) ? counter+1 : 30;
+      if((state==CHARGING || state == COMPLETE || state == FAULT)) begin if(count==1) counter <= (counter <= 610) ? counter+1 : 30; end
       else counter <= 0;
       {R, G, B} <= 6'b00_00_00;
       if(video_active) {R, G, B} <= 6'b01_01_10;
