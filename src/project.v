@@ -1,13 +1,13 @@
-
+`default_nettype none
 module tt_um_EV_Charging_CTRL(
-  input  wire [7:0] ui_in,    // Dedicated inputs
+  input wire [7:0] ui_in,    // Dedicated inputs
   output wire [7:0] uo_out,   // Dedicated outputs
-  input  wire [7:0] uio_in,   // IOs: Input path
+  input wire [7:0] uio_in,   // IOs: Input path
   output wire [7:0] uio_out,  // IOs: Output path
   output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
-  input  wire       ena,      // always 1 when the design is powered, so you can ignore it
-  input  wire       clk,      // clock
-  input  wire       rst_n     // reset_n - low to reset
+  input wire ena,      // always 1 when the design is powered, so you can ignore it
+  input wire clk,      // clock
+  input wire rst_n     // reset_n - low to reset
 );
  
   // EV Charging Controller Signals
@@ -18,13 +18,12 @@ module tt_um_EV_Charging_CTRL(
   // VGA signals
   wire hsync;
   wire vsync;
-  reg [1:0] R;
-  reg [1:0] G;
-  reg [1:0] B;
+  reg [1:0] R,G,B;
   wire video_active;
-  wire [9:0] pix_x;
-  wire [9:0] pix_y;
- 
+  wire [9:0] pix_x,pix_y;
+  reg [16:0] count;
+
+   
   localparam IDLE      = 3'd0;
   localparam AUTH      = 3'd2;
   localparam PRECHARGE = 3'd3;
@@ -38,7 +37,7 @@ module tt_um_EV_Charging_CTRL(
  
   // Unused outputs assigned to 0.
   assign uio_out = 0;
-  assign uio_oe  = 0;
+  assign uio_oe = 0;
  
   // Suppress unused signals warning
   wire _unused_ok = &{ena, uio_in};
@@ -49,7 +48,6 @@ module tt_um_EV_Charging_CTRL(
         begin
             status_char = " ";
             case (status)
- 
                 IDLE: begin
                     case (idx)
                         0: status_char = "I";
@@ -59,7 +57,6 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
- 
                 AUTH: begin
                     case (idx)
                         0: status_char = "A";
@@ -69,7 +66,6 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
- 
                 PRECHARGE: begin
                     case (idx)
                         0: status_char = "P";
@@ -84,7 +80,6 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
- 
                 CHARGING: begin
                     case (idx)
                         0: status_char = "C";
@@ -98,7 +93,6 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
- 
                 CONNECTED: begin
                     case (idx)
                         0: status_char = "C";
@@ -113,7 +107,6 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
- 
                 COMPLETE: begin
                     case (idx)
                         0: status_char = "C";
@@ -127,7 +120,6 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
- 
                 FAULT: begin
                     case (idx)
                         0: status_char = "F";
@@ -138,9 +130,7 @@ module tt_um_EV_Charging_CTRL(
                         default: status_char = " ";
                     endcase
                 end
- 
                 default: status_char = " ";
- 
             endcase
         end
     endfunction
@@ -151,9 +141,7 @@ module tt_um_EV_Charging_CTRL(
         input [2:0] row;
         begin
             font_row = 5'b00000;
- 
             case (ch)
- 
                 "A": case (row)
                     0: font_row = 5'b01110;
                     1: font_row = 5'b10001;
@@ -164,7 +152,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10001;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "C": case (row)
                     0: font_row = 5'b01110;
                     1: font_row = 5'b10001;
@@ -175,7 +162,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b01110;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "D": case (row)
                     0: font_row = 5'b11110;
                     1: font_row = 5'b10001;
@@ -186,7 +172,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b11110;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "E": case (row)
                     0: font_row = 5'b11111;
                     1: font_row = 5'b10000;
@@ -197,7 +182,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b11111;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "F": case (row)
                     0: font_row = 5'b11111;
                     1: font_row = 5'b10000;
@@ -208,7 +192,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10000;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "G": case (row)
                     0: font_row = 5'b01110;
                     1: font_row = 5'b10001;
@@ -219,7 +202,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b01110;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "H": case (row)
                     0: font_row = 5'b10001;
                     1: font_row = 5'b10001;
@@ -230,7 +212,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10001;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "I": case (row)
                     0: font_row = 5'b11111;
                     1: font_row = 5'b00100;
@@ -241,7 +222,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b11111;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "L": case (row)
                     0: font_row = 5'b10000;
                     1: font_row = 5'b10000;
@@ -252,7 +232,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b11111;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "M": case (row)
                     0: font_row = 5'b10001;
                     1: font_row = 5'b11011;
@@ -263,7 +242,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10001;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "N": case (row)
                     0: font_row = 5'b10001;
                     1: font_row = 5'b11001;
@@ -274,7 +252,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10001;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "O": case (row)
                     0: font_row = 5'b01110;
                     1: font_row = 5'b10001;
@@ -285,7 +262,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b01110;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "P": case (row)
                     0: font_row = 5'b11110;
                     1: font_row = 5'b10001;
@@ -296,7 +272,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10000;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "R": case (row)
                     0: font_row = 5'b11110;
                     1: font_row = 5'b10001;
@@ -307,7 +282,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b10001;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "T": case (row)
                     0: font_row = 5'b11111;
                     1: font_row = 5'b00100;
@@ -318,7 +292,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b00100;
                     default: font_row = 5'b00000;
                 endcase
- 
                 "U": case (row)
                     0: font_row = 5'b10001;
                     1: font_row = 5'b10001;
@@ -329,7 +302,6 @@ module tt_um_EV_Charging_CTRL(
                     6: font_row = 5'b01110;
                     default: font_row = 5'b00000;
                 endcase
- 
                 default: font_row = 5'b00000;
             endcase
         end
@@ -356,16 +328,13 @@ module tt_um_EV_Charging_CTRL(
     end
  
     wire [9:0] text_width;
-    wire [9:0] text_x;
-    wire [9:0] text_y;
+    wire [9:0] text_x,text_y;
  
     assign text_width = status_length * CHAR_W;
     assign text_x = (10'd640 - text_width) / 2;
     assign text_y = 10'd50;
  
-    wire [9:0] rel_x;
-    wire [9:0] rel_y;
- 
+    wire [9:0] rel_x,rel_y; 
     wire [3:0] char_index;
     wire [2:0] glyph_col;
     wire [2:0] glyph_row;
@@ -384,16 +353,12 @@ module tt_um_EV_Charging_CTRL(
  
     assign rel_x = pix_x - text_x;
     assign rel_y = pix_y - text_y;
- 
     assign char_index = rel_x / CHAR_W;
     assign glyph_col  = (rel_x % CHAR_W) / SCALE;
     assign glyph_row  = rel_y / SCALE;
- 
-    assign current_char =
-        status_char(state, char_index);
- 
-    assign current_font_row =
-        font_row(current_char, glyph_row);
+    assign current_char = status_char(state, char_index);
+    assign current_font_row = font_row(current_char, glyph_row);
+        
  
     assign text_pixel =
         video_active &&
@@ -440,33 +405,56 @@ module tt_um_EV_Charging_CTRL(
       counter <= 10'd0;
       {R, G, B} <= 6'b00_00_00;
     end else begin
-      if((state==CHARGING || state == COMPLETE || state == FAULT)) begin if(count==1) counter <= (counter <= 610) ? counter+1 : 30; end
-      else counter <= 0;
-      {R, G, B} <= 6'b00_00_00;
-      if(video_active) {R, G, B} <= 6'b01_01_10;
-      if((pix_y >= 200 && pix_y <= 260) && pix_x >= 20 && pix_x <= 620) {R, G, B} <= 6'b00_00_00;
-      if((pix_y >= 215 && pix_y <= 245) && pix_x >= 20 && pix_x <= 630) {R, G, B} <= 6'b00_00_00;
-      if((pix_y >= 150 && pix_y <= 180) && pix_x >= 40 && pix_x <= 80) {R, G, B} <= (state==0)? 6'b11_11_11:6'b00_00_00;
- 
-      if((pix_y >= 150 && pix_y <= 180) && pix_x >= 200 && pix_x <= 240) {R, G, B} <= (state==1) ? 6'b11_11_11 : 6'b00_00_00;
- 
- 
-      if((pix_y >= 150 && pix_y <= 180) && pix_x >= 360 && pix_x <= 400)  {R, G, B} <= (state==2) ? 6'b11_11_11 : 6'b00_00_00;
- 
-      if((pix_y >= 150 && pix_y <= 180) && pix_x >= 520 && pix_x <= 560)  {R, G, B} <= (state==3) ? 6'b11_11_11 : 6'b00_00_00;
-      if(state==FAULT && pix_y >= 210 && pix_y <= 250 && pix_x >= 30 && pix_x <= 610 && counter%100 <= 50) {R, G, B} <= 6'b11_00_00;
-      else if(state==CHARGING && pix_y >= 210 && pix_y <= 250 && pix_x >= 30 && pix_x <= counter) {R, G, B} <= 6'b00_11_00;
-      else if(state==COMPLETE && pix_y >= 210 && pix_y <= 250 && pix_x >= 30 && pix_x <= 610 && counter%100 <= 50) {R, G, B} <= 6'b00_11_00;
+      if((state==CHARGING || state == COMPLETE || state == FAULT))  begin 
+       if(count==1) 
+         counter <= (counter <= 610) ? counter+1 : 30; end
+       else counter <= 0; 
+       {R, G, B} <= 6'b00_00_00;
+      if(video_active) 
+        {R, G, B} <= 6'b01_01_10; // this will create a BLUE Tinted BackGround colour when video active
+      
+      // This is the outer box of the charging bar and the colour is Black
+      if((pix_y >= 200 && pix_y <= 260) && pix_x >= 20 && pix_x <= 620) 
+        {R, G, B} <= 6'b00_00_00;
+        
+      // This is the inner box of the charging bar and the colour is Black
+      if((pix_y >= 215 && pix_y <= 245) && pix_x >= 20 && pix_x <= 630) 
+        {R, G, B} <= 6'b00_00_00;
+      
+      // These are the four rectangle boxes to show the status of each state
+      // IDLE when active keep that box white 6'b11_11_11 else black 6'b00_00_00 
+      if((pix_y >= 150 && pix_y <= 180) && pix_x >= 40 && pix_x <= 80) 
+        {R, G, B} <= (state==0)? 6'b11_11_11:6'b00_00_00;
+      
+      //CONNECTED when active keep that box white 6'b11_11_11 else black 6'b00_00_00
+      if((pix_y >= 150 && pix_y <= 180) && pix_x >= 200 && pix_x <= 240) 
+        {R, G, B} <= (state==1) ? 6'b11_11_11 : 6'b00_00_00;
+      
+      //AUTH when active keep that box white 6'b11_11_11 else black 6'b00_00_00
+      if((pix_y >= 150 && pix_y <= 180) && pix_x >= 360 && pix_x <= 400)  
+        {R, G, B} <= (state==2) ? 6'b11_11_11 : 6'b00_00_00;
+      
+      //PRECHARGE when active keep that box white 6'b11_11_11 else black 6'b00_00_00
+      if((pix_y >= 150 && pix_y <= 180) && pix_x >= 520 && pix_x <= 560)  
+        {R, G, B} <= (state==3) ? 6'b11_11_11 : 6'b00_00_00;
+      
+      // FAULT State Animation Blinking RED
+      if(state==FAULT && pix_y >= 210 && pix_y <= 250 && pix_x >= 30 && pix_x <= 610 && counter%100 <= 50) 
+        {R, G, B} <= 6'b11_00_00;
+      
+      // CHARGING State Animation bar is Progressing from left to Right in Green Colour
+      else if(state==CHARGING && pix_y >= 210 && pix_y <= 250 && pix_x >= 30 && pix_x <= counter) 
+        {R, G, B} <= 6'b00_11_00;
+      
+      // Once it is in COMPLETE state the blinking animation will be happening in the green colour 
+      else if(state==COMPLETE && pix_y >= 210 && pix_y <= 250 && pix_x >= 30 && pix_x <= 610 && counter%100 <= 50) 
+        {R, G, B} <= 6'b00_11_00;
       // White status heading
       if (text_pixel) {R, G, B} <= 6'b11_11_11;
- 
       // Blanking outside visible display
-      if (!video_active) {R, G, B} <= 6'b00_00_00;
- 
-     
+      if (!video_active) {R, G, B} <= 6'b00_00_00;     
     end
   end
-  reg [16:0] count;
   always@(posedge clk) begin
     if(state==CHARGING || state == COMPLETE || state == FAULT)
     count <= count +1;
