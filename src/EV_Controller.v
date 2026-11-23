@@ -9,8 +9,10 @@ module EV_controller #(parameter CLK_FREQUENCY = 25_175_000)(
     input wire over_current,
     input wire over_temperature,
     input wire emergency_stop,
+    input wire valid,
     output reg [2:0] state
     );
+
     localparam IDLE = 3'b000,
                CONNECTED = 3'b001,
                AUTH = 3'b010,
@@ -58,14 +60,20 @@ module EV_controller #(parameter CLK_FREQUENCY = 25_175_000)(
                 end
             end
             AUTH: begin
-                if(safety_fault) begin
-                    next_state = FAULT;
-                end
-                else if(auth) begin
-                    next_state = PRECHARGE;
+                if(valid) begin
+
+                    if(safety_fault) begin
+                        next_state = FAULT;
+                    end
+                    else if(auth) begin
+                        next_state = PRECHARGE;
+                    end
+                    else begin
+                        next_state = CONNECTED;
+                    end
                 end
                 else begin
-                    next_state = CONNECTED;
+                        next_state = AUTH;
                 end
             end
             PRECHARGE: begin
@@ -116,3 +124,5 @@ module EV_controller #(parameter CLK_FREQUENCY = 25_175_000)(
             state = current_state;
         end    
 endmodule
+
+ 
