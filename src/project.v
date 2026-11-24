@@ -14,7 +14,6 @@ module tt_um_EV_Charging_CTRL(
   // wire plug_detect,battery_full,auth,precharge_ready,over_voltage,over_current,over_temperature,emergency_stop;
   wire [2:0] state;
   wire [7:0] stable_input;
-  wire valid;
 
  
   // VGA signals
@@ -380,7 +379,6 @@ module tt_um_EV_Charging_CTRL(
   .over_voltage(stable_input[5]),
   .over_current(stable_input[6]),
   .over_temperature(stable_input[7]),
-  .valid(valid),
   .state(state)
   );
 
@@ -390,7 +388,6 @@ module tt_um_EV_Charging_CTRL(
   .clk(clk),
   .rst_n(rst_n),
   .noisy_in(ui_in),
-  .valid(valid),
   .clean_out(stable_input)
  );
  
