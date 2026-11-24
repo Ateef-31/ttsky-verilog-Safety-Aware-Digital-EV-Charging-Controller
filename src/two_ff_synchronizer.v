@@ -32,6 +32,7 @@ module two_ff_synchronizer #(
                     valid <= 1;
                 end else begin
                     count <= count + 1;
+                    valid <= 0;
                 end
             end else begin
                 count <= 0;
